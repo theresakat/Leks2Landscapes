@@ -1,5 +1,4 @@
-# Use this script to load your data for clean up. 
-
+# Use this script to load your data for clean up using the 2_clean.R script. 
 # Load the following to build the data for Friedman's (and OLS)
 # 
 # 1. Fragstats CLASS output files for complexes and single leks
@@ -8,7 +7,6 @@
 # 4. Max's lek/complex DRWM data
 # 5. landscape summaries
 # 
-
 # Sample loading code that reads a directory #
 # library(plyr) 
 # 
@@ -23,16 +21,11 @@
 # bnames <- ldply(files, read.csv, header = F, skip = 1, nrows = 1000, stringsAsFactors = FALSE) 
 # names(bnames) <- c("file", "rank", "boy_name", "boy_num", "girl_name", "girl_num") 
 
-
 # Source the functions #
-
 library(stringr)
 source("C:\\temp\\BLM Leks to Landscapes Project_287315\\code\\Task2\\functions\\readPatch.R")
 source("C:\\temp\\BLM Leks to Landscapes Project_287315\\code\\Task2\\functions\\readClass.R")
 source("C:\\temp\\BLM Leks to Landscapes Project_287315\\code\\Task2\\functions\\readPolyAtt.R")
-
-
-# Load Data #
 
 #### I. Load Task2 data sets for Friedmans and OLS ##########
 
@@ -46,8 +39,12 @@ setwd("C:\\temp\\BLM Leks to Landscapes Project_287315\\Analysis\\SpatialScaling
 p1<-readPatch("pacs.patch.csv", "PAC")
 
 # 3. import patch area data (created by Patch-level Fragstats analysis and exported from resulting polygon attribute table)
-setwd("C:\\temp\\BLM Leks to Landscapes Project_287315\\Analysis\\SpatialScaling_task2\\data\\raw")
-p2<-readPolyAtt("pacs_patches_raw.csv")
+# setwd("C:\\temp\\BLM Leks to Landscapes Project_287315\\Analysis\\SpatialScaling_task2\\data\\raw")
+# p2<-readPolyAtt("pacs_patches_raw.csv")  # !! Don't use this one!!
+
+setwd("C:\\temp\\BLM Leks to Landscapes Project_287315\\Analysis\\SpatialScaling_task2\\gis_data\\multipartPAC_summaries")
+p2a<-readPolyAtt("mpPacs_pacs_patches_selection_FC_LUT.csv")
+
 
 # 4. import Max's lek/complex DRWM data (get Max's file)
 myFile <- "C:\\Users\\tburcsu\\Google Drive\\BLM Leks to Landscapes Project\\Data\\Lek Data\\repWMsAV_2015.csv"
@@ -56,7 +53,7 @@ lut<-subset(l1, select = c("ID", "Status"))
 
 # 5. import landscape summaries
 #   5a. for 'pacsPatch' (aka. multipart PACs (mpPACs))
-setwd("C:\\temp\\BLM Leks to Landscapes Project_287315\\Analysis\\SpatialScaling_task2\\data\\raw")
+setwd("C:\\temp\\BLM Leks to Landscapes Project_287315\\Analysis\\SpatialScaling_task2\\gis_data\\multipartPAC_summaries")
 
 #   5b. for leks and complexes (DRWM data)
 setwd(xxxxxxxxxxx)
