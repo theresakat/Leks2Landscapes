@@ -5,15 +5,16 @@
 # 
 # 
 # 1. Fragstats CLASS output files for complexes and single leks
-# 2. Fragstats PATCH output files (PACs only)
+# 2. Fragstats PATCH output files (multipart PACs only)
 # 3. patch area data (created by Fragstats & exported from polygon attribute tale using Arc)
-# 4. Max's lek/complex DRWM data
-# 5. landscape summaries
+# 4. landscape summaries
+#   a. mpPacs
+#   b. leks/lek complexes
 #
 ####################################################################################
 
 
-# 1. clean Fragstats CLASS output files
+### 1. clean Fragstats CLASS output files
 
 #   1a. combine Action Areas, BLM Districts, and Populations into a data frame - not used presently
 #b1<-[some steps to add on the spatial unit type]
@@ -45,46 +46,23 @@ rm(compfid,a3,a3a,a6)
 
 
 
-# 2. clean Fragstats outputs (PACs only)
-#   2a. merge patch files
-pacsPatch<-subset(merge(p1,
-                        p2, 
+### 2 & 3. merge & clean Fragstats outputs (mpPACs only; output formerly called "pacsPatch") and mpPac areas
+mpPac<-subset(merge(mpPac_frag,
+                        mpPac_area, 
                         by.x = "PID", 
                         by.y = "gridcode"), 
                   select = c(-PID,
                              -SHAPE, -SHAPE_CSD, -SHAPE_CPS,
                              -CIRCLE_CSD, -CIRCLE_CPS,-CIRCLE_LSD,-CIRCLE_LPS,
-                             -OBJECTID, -Id,-Shape_Length,-Shape_Area,-sqkm,-ac))
-
-str(pacsPatch)
-
-
-
-# 3. clean patch area data (exported from polygon attribute table?)
-
-#   3a. for 'pacsPatch' (aka. multipart PACs (mpPACs)) and cbind to 'pacsPatch' ( # Clean the Data # )
-xxxx<-merge(pacsPatch,xxxx, by.x = xxx, by.y = yyy)
-xxxx<-cbind(xxxx,summaries)
-write.csv(pacsPatch, "C:\\temp\\BLM Leks to Landscapes Project_287315\\Analysis\\SpatialScaling_task2\\data\\csv\\pac_patches_clean.csv")
-rm(p1,p2)
+                             -OBJECTID_1, -OBJECTID, -Id, -Shape_Leng, -Shape_Length, -Shape_Area,
+                             -sqkm, -ac))
+names(mpPac)<-c("FID", "FEATURENAME", "RASTER","LABEL", "RCCI", "SCALE","AREA_HA")
+str(mpPac)
 
 
+# 4. clean LANDSCAPE SUMMARIES
 
-# 4. clean Max's lek/complex DRWM data
-
-#   4a. merge Max's file with mine and subset result
-
-grouse1<-merge(grouse,lut, by.x = "TYPE", by.y = "ID")
-grouse1<-subset(grouse1, select = c("FID", "ID", "LID", "TYPE", "AREA_MN", "CIRCLE_MN","nScale","Status"))
-str(grouse1)
-write.csv(grouse1, "C:\\temp\\BLM Leks to Landscapes Project_287315\\Analysis\\SpatialScaling_task2\\data\\csv\\grouse_task2.csv")
-rm(l1,lut)
-
-
-
-# 5. clean LANDSCAPE SUMMARIES
-
-#   5a. 'pacsPatch' (aka. multipart PACs (mpPACs)) summaries
+#   4a. mpPac_lc landscape condition summaries (multipart PACs (mpPACs)) 
 
 #     5a1. manipulate fields: change pacPatch "ha" field name to "Area_ha"
 names(pacsPatch)
@@ -92,7 +70,17 @@ names(pacsPatch)[7]<-"AREA_ha"
 names(pacsPatch)
 
 
-#   5b. leks and complexes (DRWM data)
+#   5b. leks and complexes (DRWM data) / 4. clean Max's lek/complex DRWM data
+
+#   4a. merge Max's file with mine and subset result
+
+lut<-subset(l1, select = c("ID", "Status"))
+grouse1<-merge(grouse,lut, by.x = "TYPE", by.y = "ID")
+grouse1<-subset(grouse1, select = c("FID", "ID", "LID", "TYPE", "AREA_MN", "CIRCLE_MN","nScale","Status"))
+str(grouse1)
+write.csv(grouse1, "C:\\temp\\BLM Leks to Landscapes Project_287315\\Analysis\\SpatialScaling_task2\\data\\csv\\grouse_task2.csv")
+rm(l1,lut)
+
 
 #     5b1. extract the Occupied leks and complexes
 a<-grouse1[grouse1$Status == "Occupied",]
