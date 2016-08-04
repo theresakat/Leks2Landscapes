@@ -47,7 +47,7 @@ rm(compfid,a3,a3a,a6)
 
 
 ### 2 & 3. merge & clean Fragstats outputs (mpPACs only; output formerly called "pacsPatch") and mpPac areas
-mpPac<-subset(merge(mpPac_frag,
+mpPac_frag<-subset(merge(mpPac_frag.raw,
                         mpPac_area, 
                         by.x = "PID", 
                         by.y = "gridcode"), 
@@ -56,19 +56,15 @@ mpPac<-subset(merge(mpPac_frag,
                              -CIRCLE_CSD, -CIRCLE_CPS,-CIRCLE_LSD,-CIRCLE_LPS,
                              -OBJECTID_1, -OBJECTID, -Id, -Shape_Leng, -Shape_Length, -Shape_Area,
                              -sqkm, -ac))
-names(mpPac)<-c("FID", "FEATURENAME", "RASTER","LABEL", "RCCI", "SCALE","AREA_HA")
-str(mpPac)
+names(mpPac_frag)<-c("FID", "FEATURENAME", "RASTER","LABEL", "RCCI", "SCALE","AREA_HA")
+str(mpPac_frag)
 
 
 # 4. clean LANDSCAPE SUMMARIES
 
 #   4a. mpPac_lc landscape condition summaries (multipart PACs (mpPACs)) 
-
 #     5a1. manipulate fields: change pacPatch "ha" field name to "Area_ha"
-names(pacsPatch)
-names(pacsPatch)[7]<-"AREA_ha"
-names(pacsPatch)
-
+names(mpPac_lc) <- c("VARIABLE","OBJECTID", "GRIDCODE","COUNT", "AREA_SQM", "SUM")
 
 #   5b. leks and complexes (DRWM data) / 4. clean Max's lek/complex DRWM data
 

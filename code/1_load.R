@@ -34,20 +34,21 @@ a6<-readClass("snglLeks.class.csv","snglLek")  #formerly a6
 
 ### 2. import Fragstats outputs (mpPACs only)
 setwd("C:\\temp\\BLM Leks to Landscapes Project_287315\\Analysis\\SpatialScaling_task2\\results")
-mpPac_frag<-readPatch("pacs.patch.csv", "PAC") #formerly p1
+mpPac_frag.raw<-readPatch("pacs.patch.csv", "PAC") #formerly p1
 
 ### 3. import patch area data (created by Patch-level Fragstats analysis and exported from resulting polygon attribute table)
 setwd("C:\\temp\\BLM Leks to Landscapes Project_287315\\Analysis\\SpatialScaling_task2\\gis_data\\multipartPAC_summaries")
-mpPac_area<-readPolyAtt("mpPacs_pacs_patches_selection_FC_LUT.csv") #formerly p2
+mpPac_area.raw<-readPolyAtt("mpPacs_pacs_patches_selection_FC_LUT.csv") #formerly p2
 
 ### 4. import landscape conditions summaries
 
 #   4a. for 'pacsPatch' (aka. multipart PACs (mpPACs)) ## alternatively can use the mpPAC_Summaries.csv file
-setwd("C:\\temp\\BLM Leks to Landscapes Project_287315\\Analysis\\SpatialScaling_task2\\gis_data\\multipartPAC_summaries")
-files<-dir(pattern = "ZonalSt") #, full=T)
-names(files) <- gsub("\\.csv", "", files)
-mpPac_lc<-ldply(files, read.csv, header=F, skip=1)
-names(mpPac_lc) <- c("variable","objectID", "gridcode","count", "area", "sum")
+# setwd("C:\\temp\\BLM Leks to Landscapes Project_287315\\Analysis\\SpatialScaling_task2\\gis_data\\multipartPAC_summaries")
+# files<-dir(pattern = "ZonalSt") #, full=T)
+# names(files) <- gsub("\\.csv", "", files)
+# mpPac_lc<-ldply(files, read.csv, header=F, skip=1)
+setwd("C:\\temp\\BLM Leks to Landscapes Project_287315\\Data\\raw")
+mpPac_lc<-read.csv("mpPAC_Summaries.csv")
 
 #   4b. for leks and complexes (DRWM data)
 # setwd("C:\\Users\\tburcsu\\Google Drive\\BLM Leks to Landscapes Project\\Data\\Lek Data")
