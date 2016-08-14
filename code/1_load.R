@@ -21,13 +21,14 @@
 # Source the functions #
 library(stringr)
 library(plyr)
+library(reshape2)
 source("C:\\temp\\BLM Leks to Landscapes Project_287315\\code\\Task2\\functions\\readPatch.R")
 source("C:\\temp\\BLM Leks to Landscapes Project_287315\\code\\Task2\\functions\\readClass.R")
 source("C:\\temp\\BLM Leks to Landscapes Project_287315\\code\\Task2\\functions\\readPolyAtt.R")
 
 #### I. Load Task2 data sets for Friedmans and OLS ##########
 
-### 1. import Fragstats CLASS output files
+### 1. import Fragstats CLASS output files (leks & lek complexes)
 setwd("C:\\temp\\BLM Leks to Landscapes Project_287315\\Analysis\\SpatialScaling_task2\\results")
 a3<-readClass("dslvCmplxSamp.class.csv", "dslvComplex") #formerly a3
 a6<-readClass("snglLeks.class.csv","snglLek")  #formerly a6
@@ -42,19 +43,20 @@ mpPac_area.raw<-readPolyAtt("mpPacs_pacs_patches_selection_FC_LUT.csv") #formerl
 
 ### 4. import landscape conditions summaries
 
-#   4a. for 'pacsPatch' (aka. multipart PACs (mpPACs)) ## alternatively can use the mpPAC_Summaries.csv file
+#   4a. for 'pacsPatch' (aka. multipart PACs (mpPACs)) ## alternatively can use the mpPAC_Summaries.csv file exported from LeksDBMS.mdb
 # setwd("C:\\temp\\BLM Leks to Landscapes Project_287315\\Analysis\\SpatialScaling_task2\\gis_data\\multipartPAC_summaries")
 # files<-dir(pattern = "ZonalSt") #, full=T)
 # names(files) <- gsub("\\.csv", "", files)
 # mpPac_lc<-ldply(files, read.csv, header=F, skip=1)
+# names(mpPac_lc) <- c("VARIABLE","OBJECTID", "GRIDCODE","COUNT", "AREA_SQM", "SUM")
 setwd("C:\\temp\\BLM Leks to Landscapes Project_287315\\Data\\raw")
-mpPac_lc<-read.csv("mpPAC_Summaries.csv")
+mpPac_lc<-read.csv("mpPAC_Summaries.csv") # TB imported the raw summaries to the Access database and manipulated into this long form of the data outside of R
 
 #   4b. for leks and complexes (DRWM data)
 # setwd("C:\\Users\\tburcsu\\Google Drive\\BLM Leks to Landscapes Project\\Data\\Lek Data")
 # lcDrwm<-read.csv(DRWM_and_singleLeks_data_20160524.csv,header=T) # or the file is ComplexDistRepWM_SingleLeks_data_20160515.csv
 # # 4. import Max's lek/complex DRWM data (get Max's file)
 myFile <- "C:\\Users\\tburcsu\\Google Drive\\BLM Leks to Landscapes Project\\Data\\Lek Data\\repWMsAV_2015.csv"
-l1<-read.csv( myFile,header=T)
+lek_lc<-read.csv( myFile,header=T)
 
 
