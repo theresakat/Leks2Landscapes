@@ -18,7 +18,9 @@
 # bnames <- ldply(files, read.csv, header = F, skip = 1, nrows = 1000, stringsAsFactors = FALSE) 
 # names(bnames) <- c("file", "rank", "boy_name", "boy_num", "girl_name", "girl_num") 
 
-# Source the functions #
+# Source the functions & libraries #
+source("C:\\temp\\BLM Leks to Landscapes Project_287315\\Analysis\\SpatialScaling_task2\\Friedmans\\code\\func.r")
+
 library(stringr)
 library(plyr)
 library(reshape2)
@@ -30,7 +32,7 @@ source("C:\\temp\\BLM Leks to Landscapes Project_287315\\code\\Task2\\functions\
 
 ### 1. import Fragstats CLASS output files (leks & lek complexes)
 setwd("C:\\temp\\BLM Leks to Landscapes Project_287315\\Analysis\\SpatialScaling_task2\\results")
-a3<-readClass("dslvCmplxSamp.class.csv", "dslvComplex") #formerly a3
+a3<-readClass("dslvCmplxSamp.class.csv", "dslvComplex") #formerly a3; sample of dissolved leks
 a6<-readClass("snglLeks.class.csv","snglLek")  #formerly a6
 
 ### 2. import Fragstats outputs (mpPACs only)
