@@ -13,18 +13,7 @@ source("C:\\temp\\BLM Leks to Landscapes Project_287315\\Analysis\\SpatialScalin
 
 # Create variables
 tablesDir<-c("C:\\temp\\BLM Leks to Landscapes Project_287315\\Analysis\\SpatialScaling_task2\\tables")
-sortedStatuses<-c("Occupied", "Occupied pending", "Unoccupied", "Unoccupied pending", "Historic", "No Data")
 
-# # Create sorted factor for spatial units. The sort order is specified by the [c(5,4,6,...)]
-# BaseT2$scaleSort <- factor(BaseT2$SCALE, levels=levels(BaseT2$SCALE)[c(1,2,3)])
-# levels(BaseT2$scaleSort)
-
-# Create sorted factor for occupancy status
-BaseT2a<-factorSort(BaseT2$Status,sortedStatuses,BaseT2)
-BaseT2a$x<-factor(BaseT2$Status,sortedStatuses)
-names(BaseT2a)[1]<-c("statusSort")
-BaseT2<-BaseT2a
-rm(BaseT2a)
 
 # Basic data summary
 summary(BaseT2)
@@ -86,10 +75,17 @@ stem(x$AREA_HA)
 boxplot(BaseT2$AREA_HA)
 
 
+# Explore clusters
+levels(BaseT2$AREA_CLUSTER)<-c("Medium", "Large", "Small")
+levels(BaseT2$RCCI_CLUSTER)<-c("More regular", "Irregular", "Somewhat irregular")
+table(BaseT2$AREA_CLUSTER,BaseT2$RCCI_CLUSTER)
+table(BaseT2$statusSort,BaseT2$AREA_CLUSTER)
+table(BaseT2$statusSort,BaseT2$RCCI_CLUSTER)
+groupSort<-
+
 # Kruskal-Wallis
 
-#   a. Kruskal-Wallis rank sum test to test for significant differences among the occupancy statues
-#     5b1. Perform the test
+#   1a. Kruskal-Wallis rank sum test to test for significant differences among the occupancy statues
 sag<-kruskal.test(EVT_Sagebrush ~ statusSort, data = BaseT2[BaseT2$statusSort != "No Data",])
 agr<-kruskal.test(EVT_Agriculture ~ statusSort, data = BaseT2[BaseT2$statusSort != "No Data",])
 dev<-kruskal.test(EVT_Developed ~ statusSort, data = BaseT2[BaseT2$statusSort != "No Data",])
@@ -100,7 +96,7 @@ mtn<-kruskal.test(EVT_Mountain.Sagebrush ~ statusSort, data = BaseT2[BaseT2$stat
 otw<-kruskal.test(EVT_Other.Woodland ~ statusSort, data = BaseT2[BaseT2$statusSort != "No Data",])
 
 
-#    b. compile data into a table-like format and export it (note: kwResults is a data frame of Htest objects. I don't 
+#   1b. compile data into a table-like format and export it (note: kwResults is a data frame of Htest objects. I don't 
 #         have the knowledge to manipulate the Htest objects.)
 kwResults<-rbind(sag,agr,dev,pas,mea,wyo,mtn,otw)
 # dimnames(kwResults)[[2]]<-c("H statistic", "df", "p.value", "method", "data.name")
@@ -109,7 +105,47 @@ write.csv(kwResults, file = "kwResults.csv")
 
 rm(sag, agr,dev,pas,mea,wyo,mtn,otw)
 
+tabular(AREA_CLUSTER ~ (n=1) + (AREA_HA)*(min+Mean+max+sd), data=BaseT2)
+tabular(RCCI_CLUSTER ~ (n=1) + (RCCI)*(min+Mean+max+sd), data=BaseT2)
+tabular(groupSort ~ (n=1) + (AREA_HA + RCCI)*(min+Mean+max+sd), data = BaseT2 )
+table(BaseT2$AREA_CLUSTER,BaseT2$RCCI_CLUSTER)
 
+### Exploration: occupied records only for leks, complexes, and mpPacs
+
+myData <- BaseT2[BaseT2$statusSort == "Occupied",]
+
+table(myData$SCALE, myData$RCCI_CLUSTER)
+hist(myData$AREA_HA)[myData$SCALE=="snglLek" & myData$RCCI_CLUSTER=="Irregular"]
+tabular()
+
+a<-myData[myData$SCALE=="snglLek",]
+hist(a$RCCI)
+a[1:10,c(1,3,8,9,24)]
+tail(a[,c(1,3,8.9,24)])
+rm(a)
+
+# Boxplots
+boxplot(myData$EVT_Sagebrush~myData$groupSort)
+boxplot(myData$EVT_Agriculture~myData$groupSort)
+boxplot(myData$EVT_Developed~myData$groupSort)
+
+# Kruskal-Wallis rank sum test to test for significant differences among the area-RCCI groups
+
+sag<-kruskal.test(EVT_Sagebrush ~ groupSort, data = myData)
+agr<-kruskal.test(EVT_Agriculture ~ groupSort, data = myData)
+dev<-kruskal.test(EVT_Developed ~ groupSort, data = myData)
+pas<-kruskal.test(EVT_Pasture ~ groupSort, data = myData)
+mea<-kruskal.test(EVT_Meadows ~ groupSort, data = myData)
+wyo<-kruskal.test(EVT_Wyoming.Sagebrush ~ groupSort, data = myData)
+mtn<-kruskal.test(EVT_Mountain.Sagebrush ~ groupSort, data = myData)
+otw<-kruskal.test(EVT_Other.Woodland ~ groupSort, data = myData)
+
+kwResults<-rbind(sag,agr,dev,pas,mea,wyo,mtn,otw)
+kwResults
+# dimnames(kwResults)[[2]]<-c("H statistic", "df", "p.value", "method", "data.name")
+setwd(tablesDir)
+write.csv(kwResults, file = "kwResults_area-RCCI.csv")
+rm(sag,agr,dev,pas,mea,wyo,mtn,otw)
 
 # of possible use
 x<-lek_lc[nchar(lek_lc$ID)>7,]

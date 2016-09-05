@@ -21,6 +21,8 @@
 # Final output object:  BaseT2
 ####################################################################################
 
+source("C:\\temp\\BLM Leks to Landscapes Project_287315\\Analysis\\SpatialScaling_task2\\Friedmans\\code\\func.r")
+
 library(reshape2)
 library(stringr)
 library(plyr)
@@ -28,6 +30,8 @@ library(plyr)
 # Define variables
 #   Fragstats fields
 fragnames_8<-c("PID", "FID", "FEATURENAME", "RASTER","LABEL", "RCCI", "SCALE","AREA_HA")
+tablesDir<-c("C:\\temp\\BLM Leks to Landscapes Project_287315\\Analysis\\SpatialScaling_task2\\tables")
+sortedStatuses<-c("Occupied", "Occupied pending", "Unoccupied", "Unoccupied pending", "Historic", "No Data")
 
 ### 1. clean Fragstats CLASS output files (leks/complexes)
 
@@ -122,25 +126,42 @@ lek_frie<-subset(merge(lek_frag,
 BaseT2<- rbind(lek_frie,mpPac_frie)
 
 
-### 5. Create the groups and blocks for Friedman test
+
+
+### 5. Create the groups and blocks for Friedman test ** TRY TO CLUSTER THE RCCI IN EACH AREA_CLUSTER TO ACHIEVE UNREPLICATED R-BLOCK
 # Prepare Data
-ydata<-cbind(BaseT2,scale(BaseT2$AREA_HA), scale(BaseT2$RCCI))
+#ydata<-cbind(BaseT2,scale(BaseT2$AREA_HA), scale(BaseT2$RCCI))
+ydata<-cbind(myData,scale(myData$AREA_HA), scale(myData$RCCI))
 x<-matrix(ydata[,19], ncol=1) #AREA_HA
 x2<-matrix(ydata[,20], ncol=1) #RCCI
 
-# Determine number of clusters
+wss <- (nrow(x2)-1)*sum(apply(x2,2,var))
+for (i in 2:15) wss[i] <- sum(kmeans(x2, centers=i)$withinss)
+plot(1:15, wss, type="b", xlab="Number of Clusters",
+     ylab="Within groups sum of squares") 
+
+# Determine number of clusters (function stored in Friedmans/code/func.R)
 plot_wss(x)
 plot_wss(x2)
+
+# # playing with nested groups
+# x3<-matrix(BaseT2$RCCI[BaseT2$AREA_CLUSTER == 1], ncol=1) #RCCI
+# plot_wss(x3)
+# fit3<-kmeans(x3,3)
+# aggregate(x3,by=list(fit3$cluster),FUN=mean)
+# ydata <- cbind(ydata, fit3$cluster) # WILL THIS BIND CORRECTLY TO THE AREA_CLUSTER SUBSET?
 
 # K-Means Cluster Analysis
 fit <- kmeans(x, 3) # 3 cluster solution identified with plot_wss(x)
 fit2 <- kmeans(x2, 3) # 3 cluster solution identified with plot_wss(x2)
+fit3 <- kmeans(x2, 4) # 3 cluster solution identified with plot_wss(x2)
+
 # get cluster means 
 aggregate(x,by=list(fit$cluster),FUN=mean)
 aggregate(x2,by=list(fit2$cluster),FUN=mean)
 # append cluster assignment
-ydata <- cbind(ydata, fit$cluster)
-ydata <- cbind(ydata, fit2$cluster)
+ydata <- as.factor(cbind(ydata, fit$cluster))
+ydata <- as.factor(cbind(ydata, fit2$cluster))
 
 names(ydata)[21]<-"AREA_CLUSTER"
 names(ydata)[22]<-"RCCI_CLUSTER"
@@ -149,7 +170,34 @@ BaseT2<-ydata
 rm(ydata)
 
 # Create area-shape groups
-BaseT2$groups<-as.factor(with(BaseT2, paste0(AREA_CLUSTER,RCCI_CLUSTER)))
+# review the clusters before assigning the following groups, especially if any changes have been made above
+# table(BaseT2$AREA_CLUSTER,BaseT2$RCCI_CLUSTER)
+# table(BaseT2$statusSort,BaseT2$AREA_CLUSTER)
+# table(BaseT2$statusSort,BaseT2$RCCI_CLUSTER)
+BaseT2$groups_num<-as.factor(with(BaseT2, paste(AREA_CLUSTER,RCCI_CLUSTER)))
+levels(BaseT2$AREA_CLUSTER)<-c("Medium", "Large", "Small")
+levels(BaseT2$RCCI_CLUSTER)<-c("More regular", "Irregular", "Somewhat irregular")
+levels(BaseT2$RCCI_CLUSTER)<-c("Irregular", "Regular", "Less regular")
+BaseT2$groups2<-as.factor(with(BaseT2, paste(AREA_CLUSTER,RCCI_CLUSTER, sep = "-")))
+
+# Create sorted factor for area-shape groups
+as.matrix(levels(BaseT2$groups2))
+BaseT2$groupSort <- factor(BaseT2$groups2, levels=levels(BaseT2$groups2)[c(8,7,6,5,4,3,2,1)])
+as.matrix(levels(BaseT2$groupSort))
+BaseT2<-subset(BaseT2, select = c(-groups2))
+
+# Create sorted factor for spatial units. The sort order is specified by the [c(5,4,6,...)]
+BaseT2$scaleSort <- factor(BaseT2$SCALE, levels=levels(BaseT2$SCALE)[c(1,2,3)])
+levels(BaseT2$scaleSort)
+
+# Create sorted factor for occupancy status
+BaseT2a<-factorSort(BaseT2$Status,sortedStatuses,BaseT2)
+BaseT2a$x<-factor(BaseT2$Status,sortedStatuses)
+names(BaseT2a)[1]<-c("statusSort")
+BaseT2<-BaseT2a
+rm(BaseT2a)
+
+
 
 # Create long form of the data
 base_long <- melt(subset(BaseT2, select = c(-PID, -FID, -RASTER)), 
@@ -160,7 +208,7 @@ base_long <- melt(subset(BaseT2, select = c(-PID, -FID, -RASTER)),
                    "Status",
                    "AREA_CLUSTER", 
                    "RCCI_CLUSTER", 
-                   "groups"))
+                   "groups2"))
 
 
 # Export data for archive and import later
