@@ -1,0 +1,8 @@
+ols_EVT_Agriculture<-lm(EVT_Agriculture ~ AREA_HA + RCCI + AreaRCCI); summary(ols_EVT_Agriculture)
+ols_EVT_Developed<-lm(EVT_Developed ~ AREA_HA + RCCI + AreaRCCI); summary(ols_EVT_Developed)
+ols_EVT_Meadows<-lm(EVT_Meadows ~ AREA_HA + RCCI + AreaRCCI); summary(ols_EVT_Meadows)
+ols_EVT_Mountain.Sagebrush<-lm(EVT_Mountain.Sagebrush ~ AREA_HA + RCCI + AreaRCCI); summary(ols_EVT_Mountain.Sagebrush)
+ols_EVT_Other.Woodland<-lm(EVT_Other.Woodland ~ AREA_HA + RCCI + AreaRCCI); summary(ols_EVT_Other.Woodland)
+ols_EVT_Pasture<-lm(EVT_Pasture ~ AREA_HA + RCCI + AreaRCCI); summary(ols_EVT_Pasture)
+ols_EVT_Sagebrush<-lm(EVT_Sagebrush ~ AREA_HA + RCCI + AreaRCCI); summary(ols_EVT_Sagebrush)
+ols_EVT_Wyoming.Sagebrush<-lm(EVT_Wyoming.Sagebrush ~ AREA_HA + RCCI + AreaRCCI); summary(ols_EVT_Wyoming.Sagebrush)

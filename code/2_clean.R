@@ -128,10 +128,11 @@ BaseT2<- rbind(lek_frie,mpPac_frie)
 
 
 
-### 5. Create the groups and blocks for Friedman test ** TRY TO CLUSTER THE RCCI IN EACH AREA_CLUSTER TO ACHIEVE UNREPLICATED R-BLOCK
+### 5. Create the groups and blocks using k-means clusterin ** TRY TO CLUSTER THE RCCI IN EACH AREA_CLUSTER TO ACHIEVE UNREPLICATED R-BLOCK
+#       Originally to be used for Friedman's randomized block test
 # Prepare Data
 #ydata<-cbind(BaseT2,scale(BaseT2$AREA_HA), scale(BaseT2$RCCI))
-ydata<-cbind(myData,scale(myData$AREA_HA), scale(myData$RCCI))
+ydata<-cbind(myData,scale(myData$AREA_HA), scale(myData$RCCI)) # add data filter here for mpPACs
 x<-matrix(ydata[,19], ncol=1) #AREA_HA
 x2<-matrix(ydata[,20], ncol=1) #RCCI
 
@@ -169,14 +170,14 @@ names(ydata)[22]<-"RCCI_CLUSTER"
 BaseT2<-ydata
 rm(ydata)
 
-# Create area-shape groups
+# Create area-shape groups. 
 # review the clusters before assigning the following groups, especially if any changes have been made above
 # table(BaseT2$AREA_CLUSTER,BaseT2$RCCI_CLUSTER)
 # table(BaseT2$statusSort,BaseT2$AREA_CLUSTER)
 # table(BaseT2$statusSort,BaseT2$RCCI_CLUSTER)
 BaseT2$groups_num<-as.factor(with(BaseT2, paste(AREA_CLUSTER,RCCI_CLUSTER)))
 levels(BaseT2$AREA_CLUSTER)<-c("Medium", "Large", "Small")
-levels(BaseT2$RCCI_CLUSTER)<-c("More regular", "Irregular", "Somewhat irregular")
+# levels(BaseT2$RCCI_CLUSTER)<-c("More regular", "Irregular", "Somewhat irregular")
 levels(BaseT2$RCCI_CLUSTER)<-c("Irregular", "Regular", "Less regular")
 BaseT2$groups2<-as.factor(with(BaseT2, paste(AREA_CLUSTER,RCCI_CLUSTER, sep = "-")))
 
@@ -197,7 +198,9 @@ names(BaseT2a)[1]<-c("statusSort")
 BaseT2<-BaseT2a
 rm(BaseT2a)
 
-
+# Add field for interaction of AREA and RCCI
+AreaRCCI<-BaseT2$AREA_HA*BaseT2$RCCI
+BaseT2<-cbind(BaseT2,AreaRCCI)
 
 # Create long form of the data
 base_long <- melt(subset(BaseT2, select = c(-PID, -FID, -RASTER)), 
@@ -208,8 +211,9 @@ base_long <- melt(subset(BaseT2, select = c(-PID, -FID, -RASTER)),
                    "Status",
                    "AREA_CLUSTER", 
                    "RCCI_CLUSTER", 
+                   "groups_num",
+                   "groupSort",
                    "groups2"))
-
 
 # Export data for archive and import later
 setwd("C:\\temp\\BLM Leks to Landscapes Project_287315\\Analysis\\SpatialScaling_task2\\data\\csv")

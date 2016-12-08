@@ -1,0 +1,8 @@
+summary(ols_EVT_Agriculture)
+summary(ols_EVT_Developed)
+summary(ols_EVT_Meadows)
+summary(ols_EVT_Mountain.Sagebrush)
+summary(ols_EVT_Other.Woodland)
+summary(ols_EVT_Pasture)
+summary(ols_EVT_Sagebrush)
+summary(ols_EVT_Wyoming.Sagebrush)

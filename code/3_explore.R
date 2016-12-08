@@ -52,6 +52,17 @@ setwd(tablesDir)
 write.csv.tabular(bs2, file = "tblBaseT2_byStatus_summary.csv")
 rm(sub1,bs,bs2)
 
+# Summary table of variables by area-RCCI group for occupancy = Occupied
+bs3<- tabular( Heading("Variable")*(variable+1) ~ 
+                 (Heading("groups")*groups + 1) * Heading()*value*((n=1) + Format(digits=1, scientific = FALSE)*(mean + sd + se + Vstar)), 
+               data = base_long[base_long$statusSort == "Occupied",])
+bs3
+
+# Summary table of variables by spatial unit for occupancy = Occupied
+bs4<- tabular( Heading("Variable")*(variable+1) ~ 
+                (Heading("Spatial Unit")*SCALE + 1) * Heading()*value*((n=1) + Format(digits=1, scientific = FALSE)*(mean + sd + se + Vstar)), 
+              data = base_long[base_long$statusSort == "Occupied",])
+bs4
 
 # Stem and leaf plots
 stem(BaseT2$AREA_HA)
@@ -77,11 +88,16 @@ boxplot(BaseT2$AREA_HA)
 
 # Explore clusters
 levels(BaseT2$AREA_CLUSTER)<-c("Medium", "Large", "Small")
-levels(BaseT2$RCCI_CLUSTER)<-c("More regular", "Irregular", "Somewhat irregular")
+#levels(BaseT2$RCCI_CLUSTER)<-c("More regular", "Irregular", "Somewhat irregular")
+levels(BaseT2$RCCI_CLUSTER)<-c("Irregular", "Regular", "Less regular")
 table(BaseT2$AREA_CLUSTER,BaseT2$RCCI_CLUSTER)
 table(BaseT2$statusSort,BaseT2$AREA_CLUSTER)
 table(BaseT2$statusSort,BaseT2$RCCI_CLUSTER)
-groupSort<-
+
+tabular(AREA_CLUSTER ~ (n=1) + (AREA_HA)*(min+Mean+max+sd), data=BaseT2)
+tabular(RCCI_CLUSTER ~ (n=1) + (RCCI)*(min+Mean+max+sd), data=BaseT2)
+tabular(groupSort ~ (n=1) + (AREA_HA + RCCI)*(min+Mean+max+sd), data = BaseT2 )
+table(BaseT2$AREA_CLUSTER,BaseT2$RCCI_CLUSTER) # TABLE SHOWING THAT FRIEDMAN'S IS NOT VALID
 
 # Kruskal-Wallis
 
@@ -105,18 +121,39 @@ write.csv(kwResults, file = "kwResults.csv")
 
 rm(sag, agr,dev,pas,mea,wyo,mtn,otw)
 
-tabular(AREA_CLUSTER ~ (n=1) + (AREA_HA)*(min+Mean+max+sd), data=BaseT2)
-tabular(RCCI_CLUSTER ~ (n=1) + (RCCI)*(min+Mean+max+sd), data=BaseT2)
-tabular(groupSort ~ (n=1) + (AREA_HA + RCCI)*(min+Mean+max+sd), data = BaseT2 )
-table(BaseT2$AREA_CLUSTER,BaseT2$RCCI_CLUSTER)
 
-### Exploration: occupied records only for leks, complexes, and mpPacs
+
+### Exploration: occupied records only for leks, complexes, and mpPacs ###
 
 myData <- BaseT2[BaseT2$statusSort == "Occupied",]
+
+tabular(AREA_CLUSTER ~ (n=1) + (AREA_HA)*(min+Mean+max+sd), data=BaseT2 )
+tabular(RCCI_CLUSTER ~ (n=1) + (RCCI)*(min+Mean+max+sd), data=BaseT2 )
+tabular(groupSort ~ (n=1) + (AREA_HA + RCCI)*(min+Mean+max+sd), data = BaseT2 )
+tabular(SCALE ~ (n =1) + (RCCI_CLUSTER) + (AREA_CLUSTER), data=BaseT2 )
+table(BaseT2$AREA_CLUSTER,BaseT2$RCCI_CLUSTER)
 
 table(myData$SCALE, myData$RCCI_CLUSTER)
 hist(myData$AREA_HA)[myData$SCALE=="snglLek" & myData$RCCI_CLUSTER=="Irregular"]
 tabular()
+
+
+myData <- BaseT2[BaseT2$SCALE == "mpPAC" & BaseT2$statusSort == "Occupied" & BaseT2$AREA_HA > 7900,]
+plotData<-myData[,c(8,9,11:18)]  #RCCI, AREA_HA, EVT_Ag:WySagebrush
+plotData<-myData[,c(26,11:18)]  #AREA_HA*RCCI, EVT_Ag:WySagebrush
+
+pairs(plotData, upper.panel = panel.cor)
+attach(myData)
+
+hist(AREA_HA)
+hist(log(AREA_HA)) # Use this distribution
+hist(1/AREA_HA)
+hist(1/AREA_HA^2)
+
+hist(RCCI)
+hist(log(RCCI))
+hist(1/RCCI)
+hist(1/RCCI^2)
 
 a<-myData[myData$SCALE=="snglLek",]
 hist(a$RCCI)
@@ -129,8 +166,13 @@ boxplot(myData$EVT_Sagebrush~myData$groupSort)
 boxplot(myData$EVT_Agriculture~myData$groupSort)
 boxplot(myData$EVT_Developed~myData$groupSort)
 
+boxplot(myData$EVT_Sagebrush~myData$SCALE)
+boxplot(myData$EVT_Agriculture~myData$SCALE)
+boxplot(myData$EVT_Developed~myData$SCALE)
+
 # Kruskal-Wallis rank sum test to test for significant differences among the area-RCCI groups
 
+myData <- BaseT2[BaseT2$statusSort == "Occupied",]
 sag<-kruskal.test(EVT_Sagebrush ~ groupSort, data = myData)
 agr<-kruskal.test(EVT_Agriculture ~ groupSort, data = myData)
 dev<-kruskal.test(EVT_Developed ~ groupSort, data = myData)
@@ -146,6 +188,27 @@ kwResults
 setwd(tablesDir)
 write.csv(kwResults, file = "kwResults_area-RCCI.csv")
 rm(sag,agr,dev,pas,mea,wyo,mtn,otw)
+
+
+### Exploration: mpPacs only (all are "occupied")  ###
+myData <- BaseT2[BaseT2$SCALE == "mpPAC" & BaseT2$statusSort == "Occupied",]
+plot((myData$AREA_HA*myData$RCCI), myData$EVT_Sagebrush)
+
+myData <- BaseT2[BaseT2$AREA_HA < 7600 & BaseT2$statusSort == "Occupied",]
+plot((myData$AREA_HA*myData$RCCI), myData$EVT_Sagebrush)
+
+myData <-BaseT2[BaseT2$SCALE == "snglLek" & BaseT2$statusSort == "Occupied",]
+plot((myData$AREA_HA*myData$RCCI), myData$EVT_Sagebrush)
+hist(myData$EVT_Sagebrush)
+table(myData$statusSort)
+
+
+pairs(iris, upper.panel = panel.cor)
+plotData<-myData[,c(8,9,11:18)]
+pairs(plotData, upper.panel = panel.cor)
+
+
+myData <-BaseT2[BaseT2$SCALE == "dslvComplex" & BaseT2$statusSort == "Occupied",]
 
 # of possible use
 x<-lek_lc[nchar(lek_lc$ID)>7,]
