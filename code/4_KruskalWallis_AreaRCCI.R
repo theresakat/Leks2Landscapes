@@ -30,3 +30,4 @@ kwResults
 setwd(tablesDir)
 write.csv(kwResults, file = "kwResults_area-RCCI.csv")
 rm(sag,agr,dev,pas,mea,wyo,mtn,otw)
+

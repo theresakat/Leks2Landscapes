@@ -11,7 +11,7 @@ source("C:\\temp\\BLM Leks to Landscapes Project_287315\\Analysis\\SpatialScalin
 # # Load data for exploration
 # setwd("C:\\temp\\BLM Leks to Landscapes Project_287315\\Analysis\\SpatialScaling_task2\\data\\csv")
 # BaseT2<-read.csv("BaseData_Task2.csv")
-base_long <- melt(subset(BaseT2, select = c(-PID, -FID, -RASTER)), 
+base_longtest <- melt(subset(BaseT2, select = c(-PID, -FID, -RASTER)), 
                   id = c("statusSort", 
                          "SCALE", 
                          "FEATURENAME", 
@@ -43,3 +43,6 @@ bs4<- tabular( Heading("Variable")*(variable+1) ~
                  (Heading("Spatial Unit")*SCALE + 1) * Heading()*value*((n=1) + Format(digits=1, scientific = FALSE)*(mean + sd + se + Vstar)), 
                data = base_long[base_long$statusSort == "Occupied",])
 bs
+
+setwd(tablesDir)
+write.csv.tabular(bs, file = "tblBaseT2_Occupied_summary.csv")

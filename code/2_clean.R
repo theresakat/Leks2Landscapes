@@ -19,6 +19,9 @@
 # - lek_lc
 #
 # Final output object:  BaseT2
+#
+# Future enhancements:
+#   - move task 5 to its own script, perhaps indicating that it should be ordered between explore and KW analysis
 ####################################################################################
 
 source("C:\\temp\\BLM Leks to Landscapes Project_287315\\Analysis\\SpatialScaling_task2\\Friedmans\\code\\func.r")

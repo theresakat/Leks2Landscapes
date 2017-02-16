@@ -8,8 +8,8 @@
 source("C:\\temp\\BLM Leks to Landscapes Project_287315\\Analysis\\SpatialScaling_task2\\Friedmans\\code\\func.r")
 
 # # Load data for exploration
-# setwd("C:\\temp\\BLM Leks to Landscapes Project_287315\\Analysis\\SpatialScaling_task2\\data\\csv")
-# BaseT2<-read.csv("BaseData_Task2.csv")
+setwd("C:\\temp\\BLM Leks to Landscapes Project_287315\\Analysis\\SpatialScaling_task2\\data\\csv")
+BaseT2_wide<-read.csv("BaseData_Task2_wide.csv")
 
 # Create variables
 tablesDir<-c("C:\\temp\\BLM Leks to Landscapes Project_287315\\Analysis\\SpatialScaling_task2\\tables")
@@ -212,3 +212,6 @@ myData <-BaseT2[BaseT2$SCALE == "dslvComplex" & BaseT2$statusSort == "Occupied",
 
 # of possible use
 x<-lek_lc[nchar(lek_lc$ID)>7,]
+
+
+
